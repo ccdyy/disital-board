@@ -3,7 +3,7 @@ import React from 'react';
 const ContentComponent = () => {
   return (
     <div className='content flex-col ml-8 box-border-none'>
-      <div className='intro flex box-border-none mb-10'>
+      <div className='intro md:flex box-border-none mb-10'>
         <img className='w-20 h-20 rounded-xl object-cover mr-4' src='https://picsum.photos/id/1018/400/400' alt='content' />
         <div className='flex-col justify-center items-center mr-4'>
             <h1 className='font-bold'>Pura 70 Ultra</h1>

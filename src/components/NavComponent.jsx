@@ -3,7 +3,7 @@ import React from 'react';
 const NavComponent = () => {
   return (
     <nav className="flex justify-between items-center bg-[#f1efef] h-20 border-b-1 border-gray-300 box-border-none pl-2 pr-2 mb-14 md:mb-4 md:pl-20 md:pr-20">
-        <div className="logo flex justify-start items-center ml-2 md:ml-4">
+        <div className="logo flex justify-start items-center ml-2 md:ml-0">
             <a href="/"><img className='w-14 h-14' src="https://via.placeholder.com/50" alt=""/></a>
             <span className='hidden md:flex ml-4'>数码看板</span>
         </div>
