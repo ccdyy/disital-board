@@ -24,7 +24,7 @@ let currentFilterItem = null;
 let currentSubFilterItem = null;
 let currentSort = 'sales_desc';
 let currentPage = 1;
-const itemsPerPage = 12;
+const itemsPerPage = 8;
 let currentSearchQuery = '';
 
 // 切换筛选模式按钮的样式

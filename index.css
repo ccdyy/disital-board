@@ -4,6 +4,7 @@
             margin: 0;
             background-color: #f4f4f4;
             color: #333;
+            overflow-y: scroll;
         }
         
         /* 核心布局：使用 flexbox 实现三栏布局 */
@@ -135,6 +136,7 @@
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-rows: repeat(2, 1fr);
             gap: 1em;
         }
         .product-card {
@@ -232,6 +234,12 @@
         }
         .message-box.info { border-color: #88c; background-color: #eef; }
         .message-box.error { border-color: #c88; background-color: #fee; }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1em;
+        }
         .pagination-container button {
             padding: 0.5em 1em;
             margin: 0 0.2em;
