@@ -379,7 +379,7 @@ function handleSearch(query = null) {
     }, 800);
 }
 
-searchButton.addEventListener('click', () => handleSearch());
+// searchButton.addEventListener('click', () => handleSearch());
 
 searchInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {

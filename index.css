@@ -26,30 +26,20 @@
             font-size: 2em;
         }
 
-        .search-area {
-            background-color: #fff;
-            padding: 1em;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
-
-        .search-wrapper {
-            display: flex;
-            gap: 0.5em;
-        }
-
         .search-input {
             flex-grow: 1;
-            padding: 0.5em;
+            padding: 0.75em;
             font-size: 1em;
-            border: 1px solid #ccc;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .search-button {
-            padding: 0.5em 1em;
-            border: 1px solid #ccc;
-            background-color: #eee;
-            cursor: pointer;
+        .search-input:focus {
+            border-color: #4F46E5;
         }
 
         /* 三栏布局容器 */
@@ -162,7 +152,21 @@
         .product-card h3 {
             font-size: 1.1em;
             margin: 0.5em 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        .product-card .description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0.5em 0;
+        }
+        
         .product-card .price {
             color: #007700;
             font-weight: bold;
