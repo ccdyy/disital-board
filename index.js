@@ -279,15 +279,46 @@ function renderSingleProductDetail(product) {
     hideMessage();
     listToolbar.classList.add('hidden');
     paginationContainer.classList.add('hidden');
+    
+    // 合并主图和宣传图
+    const allImages = [product.image, ...product.promotional_images];
+    
     mainContentContainer.innerHTML = `
         <button id="backToListBtn" class="back-button">返回列表</button>
-        <div class="product-detail-summary">
-            <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/4F46E5?text=Image+Not+Found';">
+        
+        <div class="product-detail-container">
+            <!-- 左侧图集 -->
+            <div class="product-detail-images">
+                <div class="main-image-container">
+                    <img id="mainImage" src="${allImages[0]}" alt="${product.name}" onerror="this.onerror=null;this.src='https://placehold.co/400x300/E0E7FF/4F46E5?text=Image+Not+Found';">
+                </div>
+                
+                <!-- 缩略图导航 -->
+                <div class="thumbnail-container">
+                    ${allImages.map((img, index) => `
+                        <img class="thumbnail ${index === 0 ? 'active' : ''}" src="${img}" alt="缩略图${index + 1}" data-index="${index}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/E0E7FF/4F46E5?text=Image+Not+Found';">
+                    `).join('')}
+                </div>
             </div>
-            <div class="text-content">
-                <h2>${product.name}</h2>
-                <p>${product.description}</p>
+            
+            <!-- 右侧产品信息 -->
+            <div class="product-detail-info">
+                <div class="product-title-description">
+                    <h2>${product.name}</h2>
+                    <p>${product.description}</p>
+                </div>
+                <div class="product-prices">
+                    <h3>各平台最低价格</h3>
+                    <ul class="price-list">
+                        ${product.links.map(link => `
+                            <li class="price-item">
+                                <span class="platform">${link.platform}</span>
+                                <span class="price">${link.price}</span>
+                                <a href="${link.url}" target="_blank" class="buy-link">前往购买</a>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -302,15 +333,6 @@ function renderSingleProductDetail(product) {
                 `).join('')}
             </ul>
         </div>
-
-        <div class="detail-section">
-            <h3>官方宣传图</h3>
-            <div class="horizontal-scroll-container">
-                ${product.promotional_images.map(img => `
-                    <img src="${img}" alt="宣传图" onerror="this.onerror=null;this.src='https://placehold.co/300x200/E0E7FF/4F46E5?text=Image+Not+Found';">
-                `).join('')}
-            </div>
-        </div>
     `;
     const backToListBtn = document.getElementById('backToListBtn');
     if (backToListBtn) {
@@ -319,6 +341,163 @@ function renderSingleProductDetail(product) {
             renderMainContent(getFilteredProducts(), getTitle());
         });
     }
+    
+    // 图片功能实现
+    const mainImage = document.getElementById('mainImage');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    
+    // 缩略图点击事件
+    thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', function() {
+            // 更新主图
+            mainImage.src = this.src;
+            
+            // 更新激活状态
+            thumbnails.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+    
+    // 主图点击放大功能
+    mainImage.addEventListener('click', function() {
+        // 创建模态框
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        // 创建大图容器
+        const imgContainer = document.createElement('div');
+        imgContainer.style.cssText = `
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        `;
+        
+        // 创建大图
+        const largeImg = document.createElement('img');
+        largeImg.src = this.src;
+        largeImg.style.cssText = `
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        `;
+        
+        // 创建关闭按钮
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 3em;
+            cursor: pointer;
+        `;
+        
+        // 创建左右切换按钮
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '&#10094;';
+        prevBtn.style.cssText = `
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.5);
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0.5em;
+        `;
+        
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = '&#10095;';
+        nextBtn.style.cssText = `
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.5);
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            padding: 0.5em;
+        `;
+        
+        // 添加元素到模态框
+        imgContainer.appendChild(largeImg);
+        imgContainer.appendChild(closeBtn);
+        imgContainer.appendChild(prevBtn);
+        imgContainer.appendChild(nextBtn);
+        modal.appendChild(imgContainer);
+        document.body.appendChild(modal);
+        
+        // 当前图片索引
+        let currentIndex = Array.from(thumbnails).findIndex(t => t.src === mainImage.src);
+        
+        // 更新大图
+        function updateLargeImage(index) {
+            currentIndex = index;
+            largeImg.src = thumbnails[currentIndex].src;
+        }
+        
+        // 切换到上一张
+        prevBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
+            updateLargeImage(currentIndex);
+        });
+        
+        // 切换到下一张
+        nextBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            currentIndex = (currentIndex + 1) % thumbnails.length;
+            updateLargeImage(currentIndex);
+        });
+        
+        // 关闭模态框
+        closeBtn.addEventListener('click', function() {
+            document.body.removeChild(modal);
+        });
+        
+        // 点击模态框背景关闭
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+        
+        // 键盘事件
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') {
+                document.body.removeChild(modal);
+            } else if (e.key === 'ArrowLeft') {
+                currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
+                updateLargeImage(currentIndex);
+            } else if (e.key === 'ArrowRight') {
+                currentIndex = (currentIndex + 1) % thumbnails.length;
+                updateLargeImage(currentIndex);
+            }
+        }
+        
+        document.addEventListener('keydown', handleKeyDown);
+        
+        // 移除键盘事件监听
+        modal.addEventListener('remove', function() {
+            document.removeEventListener('keydown', handleKeyDown);
+        });
+    });
 }
 
 // 渲染左侧筛选选项

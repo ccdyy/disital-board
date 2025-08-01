@@ -28,15 +28,16 @@
         }
 
         .search-input {
-            flex-grow: 1;
             padding: 0.75em;
             font-size: 1em;
             border: 2px solid #ddd;
             border-radius: 4px;
             outline: none;
             transition: border-color 0.3s;
-            width: 100%;
+            width: 80%;
             box-sizing: border-box;
+            margin: 1em auto;
+            display: block;
         }
 
         .search-input:focus {
@@ -65,6 +66,8 @@
         .main-content {
             flex-grow: 1; /* 主内容区占据剩余空间 */
             min-width: 0; /* 防止内容过长导致布局溢出 */
+            height: 850px; /* 固定高度 */
+            overflow-y: auto; /* 允许纵向滚动 */
         }
 
         /* 响应式设计：在小屏幕上堆叠显示 */
@@ -183,18 +186,138 @@
             text-decoration: underline;
             margin-bottom: 1em;
         }
-        .product-detail-summary {
+        
+        /* 详情页容器 */
+        .product-detail-container {
             display: flex;
-            gap: 1em;
-            align-items: flex-start;
+            gap: 2em;
+            margin-bottom: 2em;
         }
-        .product-detail-summary img {
-            max-width: 300px;
+        
+        /* 左侧图集 */
+        .product-detail-images {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
+        .main-image-container {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 1em;
+        }
+        
+        .main-image-container img {
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+        
+        .thumbnail-container {
+            display: flex;
+            gap: 0.5em;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        
+        .thumbnail.active {
+            border-color: #4F46E5;
+        }
+        
+        /* 右侧产品信息 */
+        .product-detail-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-title-description {
+            margin-bottom: 1em;
+        }
+        
+        .product-title-description h2 {
+            margin-top: 0;
+            margin-bottom: 0.5em;
+        }
+        
+        .product-title-description p {
+            margin: 0;
+            color: #666;
+        }
+        
+        .product-prices {
+            flex: 1;
+            background-color: #f9f9f9;
+            padding: 1em;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .product-prices h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #4F46E5;
+            padding-bottom: 0.5em;
+        }
+        
+        .price-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8em 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .price-item:last-child {
+            border-bottom: none;
+        }
+        
+        .platform {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .price {
+            color: #007700;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .buy-link {
+            color: #4F46E5;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.3em 0.8em;
+            border: 1px solid #4F46E5;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .buy-link:hover {
+            background-color: #4F46E5;
+            color: white;
+        }
+        
         .parameter-list {
             list-style: none;
             padding: 0;
         }
+        
         .parameter-list li {
             margin-bottom: 0.5em;
         }
