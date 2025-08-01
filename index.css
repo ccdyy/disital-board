@@ -257,17 +257,10 @@
         
         .product-prices {
             flex: 1;
-            background-color: #f9f9f9;
-            padding: 1em;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .product-prices h3 {
             margin-top: 0;
-            color: #333;
-            border-bottom: 2px solid #4F46E5;
-            padding-bottom: 0.5em;
         }
         
         .price-list {
@@ -279,7 +272,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.8em 0;
+            padding: 0.5em 0;
             border-bottom: 1px solid #eee;
         }
         
@@ -289,28 +282,22 @@
         
         .platform {
             font-weight: bold;
-            color: #555;
+            width: 100px; /* 固定平台名称宽度以确保对齐 */
         }
         
         .price {
             color: #007700;
             font-weight: bold;
-            font-size: 1.1em;
         }
         
         .buy-link {
             color: #4F46E5;
             text-decoration: none;
             font-weight: bold;
-            padding: 0.3em 0.8em;
-            border: 1px solid #4F46E5;
-            border-radius: 4px;
-            transition: all 0.3s ease;
         }
         
         .buy-link:hover {
-            background-color: #4F46E5;
-            color: white;
+            text-decoration: underline;
         }
         
         .parameter-list {
