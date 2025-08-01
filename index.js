@@ -186,15 +186,30 @@ function renderMainContent(products, title) {
     renderPagination(totalPages);
 
     // 监听产品卡片的点击事件，跳转到详情页
-    document.querySelectorAll('.product-card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            const productKey = e.currentTarget.dataset.productKey;
-            const product = mockProducts[productKey];
-            if (product) {
-                renderSingleProductDetail(product);
-            }
-        });
+document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        const productKey = e.currentTarget.dataset.productKey;
+        const product = mockProducts[productKey];
+        if (product) {
+            renderSingleProductDetail(product);
+        }
     });
+});
+
+// 全局样式切换功能
+const toggleGlobalStyleSwitch = document.getElementById('toggleGlobalStyle');
+
+if (toggleGlobalStyleSwitch) {
+    // 检查页面加载时是否应该应用TUI样式
+    if (document.body.classList.contains('tui-style')) {
+        toggleGlobalStyleSwitch.checked = true;
+    }
+    
+    toggleGlobalStyleSwitch.addEventListener('change', () => {
+        // 切换全局样式
+        document.body.classList.toggle('tui-style');
+    });
+}
 }
 
 // 渲染分页按钮
@@ -341,6 +356,8 @@ function renderSingleProductDetail(product) {
             renderMainContent(getFilteredProducts(), getTitle());
         });
     }
+    
+
     
     // 图片功能实现
     const mainImage = document.getElementById('mainImage');

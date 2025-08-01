@@ -1,10 +1,68 @@
-/* 基础样式 */
+/* 基础样式 - 现代样式 */
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
-            background-color: #f4f4f4;
+            background-color: #f5f5f5;
             color: #333;
             overflow-y: scroll;
+        }
+
+        /* Switch样式 */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-right: 10px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .switch-label {
+            font-size: 14px;
+            color: #333;
         }
         
         /* 核心布局：使用 flexbox 实现三栏布局 */
@@ -20,24 +78,27 @@
             text-align: center;
             padding: 1em 0;
             background-color: #fff;
-            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: #333;
         }
 
         h1 {
             font-size: 2em;
+            color: #333;
         }
 
         .search-input {
             padding: 0.75em;
             font-size: 1em;
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
             border-radius: 4px;
             outline: none;
-            transition: border-color 0.3s;
             width: 80%;
             box-sizing: border-box;
             margin: 1em auto;
             display: block;
+            background-color: #fff;
+            color: #333;
         }
 
         .search-input:focus {
@@ -53,9 +114,11 @@
         
         /* 左中右三栏的基础样式 */
         .left-panel, .main-content, .right-panel {
-            background-color: white;
+            background-color: #fff;
             padding: 1em;
-            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            color: #333;
         }
 
         .left-panel, .right-panel {
@@ -86,6 +149,7 @@
             margin-bottom: 0.5em;
             border-bottom: 1px solid #eee;
             padding-bottom: 0.5em;
+            color: #333;
         }
         .filter-buttons {
             display: flex;
@@ -95,12 +159,15 @@
         .filter-buttons button, .filter-option {
             padding: 0.5em;
             cursor: pointer;
-            border: 1px solid #ccc;
-            background-color: #eee;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
         }
         .filter-buttons button.active, .filter-option.active {
-            background-color: #333;
-            color: white;
+            background-color: #4F46E5;
+            color: #fff;
+            border-color: #4F46E5;
         }
         .filter-options {
             display: flex;
@@ -126,13 +193,16 @@
         .sub-filter-option {
             padding: 0.2em 0.5em;
             cursor: pointer;
-            border: 1px solid #ccc;
-            background-color: #eee;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
             margin-right: 0.2em;
         }
         .sub-filter-option.active {
-            background-color: #333;
-            color: white;
+            background-color: #4F46E5;
+            color: #fff;
+            border-color: #4F46E5;
         }
 
         /* 产品列表网格 */
@@ -143,10 +213,18 @@
             gap: 1em;
         }
         .product-card {
-            border: 1px solid #ccc;
+            border: 1px solid #eee;
+            border-radius: 8px;
             padding: 0.5em;
             cursor: pointer;
             text-align: center;
+            background-color: #fff;
+            color: #333;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+        .product-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .product-card img {
             width: 100%;
@@ -162,6 +240,7 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #333;
         }
         .product-card .description {
             display: -webkit-box;
@@ -170,10 +249,11 @@
             overflow: hidden;
             text-overflow: ellipsis;
             margin: 0.5em 0;
+            color: #333;
         }
         
         .product-card .price {
-            color: #007700;
+            color: #4F46E5;
             font-weight: bold;
         }
         
@@ -181,20 +261,280 @@
         .back-button {
             background: none;
             border: none;
-            color: blue;
+            color: #4F46E5;
             cursor: pointer;
             text-decoration: underline;
             margin-bottom: 1em;
         }
         
-        /* 详情页容器 */
+        /* TUI样式 */
+        body.tui-style {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #0f0;
+        }
+
+        /* TUI样式下的Switch */
+        body.tui-style .switch-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        body.tui-style .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-right: 10px;
+        }
+
+        body.tui-style .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        body.tui-style .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid #0f0;
+        }
+
+        body.tui-style .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: #008000;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        body.tui-style input:checked + .slider {
+            background-color: #003300;
+        }
+
+        body.tui-style input:checked + .slider:before {
+            background-color: #0f0;
+            transform: translateX(26px);
+        }
+
+        body.tui-style .switch-label {
+            font-size: 14px;
+            color: #0f0;
+        }
+        
+        body.tui-style .container {
+            max-width: 1200px;
+            margin: 1em auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        body.tui-style header {
+            text-align: center;
+            padding: 1em 0;
+            background-color: #000;
+            border: 1px solid #0f0;
+            color: #0f0;
+        }
+
+        body.tui-style h1 {
+            font-size: 2em;
+            color: #0f0;
+        }
+
+        body.tui-style .search-input {
+            padding: 0.75em;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1em;
+            border: 1px solid #0f0;
+            outline: none;
+            width: 80%;
+            box-sizing: border-box;
+            margin: 1em auto;
+            display: block;
+            background-color: #000;
+            color: #0f0;
+        }
+
+        body.tui-style .search-input:focus {
+            border-color: #0f0;
+        }
+
+        /* 三栏布局容器 */
+        body.tui-style .main-content-area {
+            display: flex;
+            gap: 1em;
+            flex: 1; /* 占据剩余空间 */
+        }
+        
+        /* 左中右三栏的基础样式 */
+        body.tui-style .left-panel, body.tui-style .main-content, body.tui-style .right-panel {
+            background-color: #000;
+            padding: 1em;
+            border: 1px solid #0f0;
+            color: #0f0;
+        }
+
+        body.tui-style .left-panel, body.tui-style .right-panel {
+            flex-basis: 250px; /* 固定侧边栏宽度 */
+            flex-shrink: 0;
+        }
+
+        body.tui-style .main-content {
+            flex-grow: 1; /* 主内容区占据剩余空间 */
+            min-width: 0; /* 防止内容过长导致布局溢出 */
+            height: 850px; /* 固定高度 */
+            overflow-y: auto; /* 允许纵向滚动 */
+        }
+
+        /* 响应式设计：在小屏幕上堆叠显示 */
+        @media (max-width: 768px) {
+            body.tui-style .main-content-area {
+                flex-direction: column;
+            }
+            body.tui-style .left-panel, body.tui-style .right-panel {
+                flex-basis: auto;
+            }
+        }
+        
+        /* 过滤器和列表样式 */
+        body.tui-style .filter-header, body.tui-style .content-title, body.tui-style .right-panel h2 {
+            font-size: 1.2em;
+            margin-bottom: 0.5em;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 0.5em;
+            color: #0f0;
+        }
+        body.tui-style .filter-buttons {
+            display: flex;
+            gap: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        body.tui-style .filter-buttons button, body.tui-style .filter-option {
+            padding: 0.5em;
+            cursor: pointer;
+            border: 1px solid #0f0;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        body.tui-style .filter-buttons button.active, body.tui-style .filter-option.active {
+            background-color: #0f0;
+            color: #000;
+        }
+        body.tui-style .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+        }
+
+        /* 列表工具栏 */
+        body.tui-style .list-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1em;
+        }
+
+        body.tui-style .list-toolbar.hidden, body.tui-style .right-panel.hidden, body.tui-style .pagination-container.hidden, body.tui-style .message-box.hidden {
+            display: none;
+        }
+
+        body.tui-style .sub-filter-container span {
+            font-weight: bold;
+        }
+        body.tui-style .sub-filter-option {
+            padding: 0.2em 0.5em;
+            cursor: pointer;
+            border: 1px solid #0f0;
+            background-color: #000;
+            color: #0f0;
+            margin-right: 0.2em;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        body.tui-style .sub-filter-option.active {
+            background-color: #0f0;
+            color: #000;
+        }
+
+        /* 产品列表网格 */
+        body.tui-style .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1em;
+        }
+        body.tui-style .product-card {
+            border: 1px solid #0f0;
+            padding: 0.5em;
+            cursor: pointer;
+            text-align: center;
+            background-color: #000;
+            color: #0f0;
+        }
+        body.tui-style .product-card img {
+            width: 100%;
+            height: auto;
+            max-height: 150px;
+            object-fit: contain;
+        }
+        body.tui-style .product-card h3 {
+            font-size: 1.1em;
+            margin: 0.5em 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #0f0;
+        }
+        body.tui-style .product-card .description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0.5em 0;
+            color: #0f0;
+        }
+        
+        body.tui-style .product-card .price {
+            color: #0f0;
+            font-weight: bold;
+        }
+        
+        /* 详情页样式 */
+        body.tui-style .back-button {
+            background: none;
+            border: none;
+            color: #0f0;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-bottom: 1em;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        /* 详情页容器 - 现代样式 */
         .product-detail-container {
             display: flex;
             gap: 2em;
             margin-bottom: 2em;
         }
         
-        /* 左侧图集 */
+        /* 左侧图集 - 现代样式 */
         .product-detail-images {
             flex: 1;
             display: flex;
@@ -212,6 +552,7 @@
             width: 100%;
             height: auto;
             cursor: pointer;
+            border-radius: 8px;
         }
         
         .thumbnail-container {
@@ -226,15 +567,15 @@
             height: 60px;
             object-fit: cover;
             cursor: pointer;
-            border: 2px solid transparent;
-            transition: border-color 0.3s;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         
         .thumbnail.active {
             border-color: #4F46E5;
         }
         
-        /* 右侧产品信息 */
+        /* 右侧产品信息 - 现代样式 */
         .product-detail-info {
             flex: 1;
             display: flex;
@@ -248,6 +589,7 @@
         .product-title-description h2 {
             margin-top: 0;
             margin-bottom: 0.5em;
+            color: #333;
         }
         
         .product-title-description p {
@@ -261,6 +603,9 @@
         
         .product-prices h3 {
             margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5em;
         }
         
         .price-list {
@@ -286,7 +631,7 @@
         }
         
         .price {
-            color: #007700;
+            color: #4F46E5;
             font-weight: bold;
         }
         
@@ -300,6 +645,40 @@
             text-decoration: underline;
         }
         
+        .toggle-button {
+            margin-left: 1em;
+            padding: 0.2em 0.5em;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
+        }
+        
+        .toggle-button:hover {
+            background-color: #4F46E5;
+            color: #fff;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .price-text {
+            line-height: 1.5;
+        }
+        
+        .price-text a {
+            color: #4F46E5;
+            font-weight: bold;
+            margin-left: 10px;
+            text-decoration: none;
+        }
+        
+        .price-text a:hover {
+            text-decoration: underline;
+        }
+        
         .parameter-list {
             list-style: none;
             padding: 0;
@@ -307,9 +686,164 @@
         
         .parameter-list li {
             margin-bottom: 0.5em;
+            color: #333;
+        }
+        
+        /* TUI样式 */
+        body.tui-style .product-detail-container {
+            display: flex;
+            gap: 2em;
+            margin-bottom: 2em;
+        }
+        
+        /* 左侧图集 */
+        body.tui-style .product-detail-images {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        body.tui-style .main-image-container {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 1em;
+        }
+        
+        body.tui-style .main-image-container img {
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+        
+        body.tui-style .thumbnail-container {
+            display: flex;
+            gap: 0.5em;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        body.tui-style .thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #0f0;
+        }
+        
+        body.tui-style .thumbnail.active {
+            border-color: #0f0;
+        }
+        
+        /* 右侧产品信息 */
+        body.tui-style .product-detail-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        body.tui-style .product-title-description {
+            margin-bottom: 1em;
+        }
+        
+        body.tui-style .product-title-description h2 {
+            margin-top: 0;
+            margin-bottom: 0.5em;
+            color: #0f0;
+        }
+        
+        body.tui-style .product-title-description p {
+            margin: 0;
+            color: #0f0;
+        }
+        
+        body.tui-style .product-prices {
+            flex: 1;
+        }
+        
+        body.tui-style .product-prices h3 {
+            margin-top: 0;
+            color: #0f0;
+        }
+        
+        body.tui-style .price-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        body.tui-style .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5em 0;
+            border-bottom: 1px solid #0f0;
+        }
+        
+        body.tui-style .price-item:last-child {
+            border-bottom: none;
+        }
+        
+        body.tui-style .platform {
+            font-weight: bold;
+            width: 100px; /* 固定平台名称宽度以确保对齐 */
+        }
+        
+        body.tui-style .price {
+            color: #0f0;
+            font-weight: bold;
+        }
+        
+        body.tui-style .buy-link {
+            color: #0f0;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        body.tui-style .buy-link:hover {
+            text-decoration: underline;
+        }
+        
+        body.tui-style .toggle-button {
+            margin-left: 1em;
+            padding: 0.2em 0.5em;
+            cursor: pointer;
+            border: 1px solid #0f0;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        body.tui-style .toggle-button:hover {
+            background-color: #0f0;
+            color: #000;
+        }
+        
+        body.tui-style .price-text {
+            line-height: 1.5;
+        }
+        
+        body.tui-style .price-text a {
+            color: #0f0;
+            font-weight: bold;
+            margin-left: 10px;
+            text-decoration: none;
+        }
+        
+        body.tui-style .price-text a:hover {
+            text-decoration: underline;
+        }
+        
+        body.tui-style .parameter-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        body.tui-style .parameter-list li {
+            margin-bottom: 0.5em;
+            color: #0f0;
         }
 
-        /* 修复：宣传图横向展示 */
+        /* 修复：宣传图横向展示 - 现代样式 */
         .horizontal-scroll-container {
             display: flex; /* 使用 flexbox 布局 */
             gap: 1em;
@@ -320,9 +854,10 @@
             width: 300px;
             height: auto;
             flex-shrink: 0; /* 防止图片缩小 */
+            border-radius: 8px;
         }
 
-        /* 价格比较列表 */
+        /* 价格比较列表 - 现代样式 */
         .purchase-links {
             list-style: none;
             padding: 0;
@@ -331,19 +866,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             padding: 0.5em;
             margin-bottom: 0.5em;
         }
 
-        /* 消息框和分页 */
+        /* 消息框和分页 - 现代样式 */
         .message-box {
             padding: 1em;
             border: 1px solid;
+            border-radius: 8px;
             text-align: center;
         }
-        .message-box.info { border-color: #88c; background-color: #eef; }
-        .message-box.error { border-color: #c88; background-color: #fee; }
+        .message-box.info { border-color: #4F46E5; background-color: #f5f5f5; color: #333; }
+        .message-box.error { border-color: #f00; background-color: #f5f5f5; color: #f00; }
         .pagination-container {
             display: flex;
             justify-content: center;
@@ -354,14 +891,76 @@
             padding: 0.5em 1em;
             margin: 0 0.2em;
             cursor: pointer;
-            border: 1px solid #ccc;
-            background-color: #eee;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: #333;
         }
         .pagination-container button.active {
-            background-color: #333;
-            color: white;
+            background-color: #4F46E5;
+            color: #fff;
+            border-color: #4F46E5;
         }
         .pagination-container button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* TUI样式 */
+        body.tui-style .horizontal-scroll-container {
+            display: flex; /* 使用 flexbox 布局 */
+            gap: 1em;
+            overflow-x: auto; /* 允许横向滚动 */
+            padding: 0.5em 0;
+        }
+        body.tui-style .horizontal-scroll-container img {
+            width: 300px;
+            height: auto;
+            flex-shrink: 0; /* 防止图片缩小 */
+        }
+
+        /* 价格比较列表 */
+        body.tui-style .purchase-links {
+            list-style: none;
+            padding: 0;
+        }
+        body.tui-style .purchase-link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #0f0;
+            padding: 0.5em;
+            margin-bottom: 0.5em;
+        }
+
+        /* 消息框和分页 */
+        body.tui-style .message-box {
+            padding: 1em;
+            border: 1px solid;
+            text-align: center;
+        }
+        body.tui-style .message-box.info { border-color: #0f0; background-color: #000; color: #0f0; }
+        body.tui-style .message-box.error { border-color: #f00; background-color: #000; color: #f00; }
+        body.tui-style .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1em;
+        }
+        body.tui-style .pagination-container button {
+            padding: 0.5em 1em;
+            margin: 0 0.2em;
+            cursor: pointer;
+            border: 1px solid #0f0;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        body.tui-style .pagination-container button.active {
+            background-color: #0f0;
+            color: #000;
+        }
+        body.tui-style .pagination-container button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
