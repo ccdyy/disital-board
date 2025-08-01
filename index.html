@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数码助手</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8; /* 轻柔的蓝灰色背景 */
+        }
+        /* 自定义滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        /* 横向滚动容器的滚动条样式 */
+        .horizontal-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .pagination-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8">
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-slate-800 mb-2">
+                数码助手
+            </h1>
+            <p class="text-xl text-slate-500">
+                一站式查询，了解数码产品详细信息。
+            </p>
+        </header>
+
+        <!-- 搜索区域 -->
+        <div class="flex items-center justify-center mb-8">
+            <div class="w-full max-w-2xl flex flex-col sm:flex-row gap-2">
+                <input type="text" id="productSearchInput" placeholder="请输入产品名称，例如：MacBook Pro M3"
+                       class="flex-grow p-3 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm text-lg text-slate-800 placeholder-slate-400">
+                <button id="searchButton"
+                        class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300 ease-in-out">
+                    搜索
+                </button>
+            </div>
+        </div>
+
+        <!-- 主内容区域：三栏布局，调整为1:3:1的比例，让中间栏更宽 -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <!-- 左侧：筛选栏（占1/5） -->
+            <aside class="col-span-1 p-6 bg-white rounded-xl shadow-md h-fit">
+                <h2 class="text-2xl font-bold text-slate-800 mb-4">筛选条件</h2>
+                <!-- 筛选模式切换按钮 -->
+                <div class="flex gap-2 mb-4">
+                    <button id="filterByBrandBtn" class="flex-1 px-4 py-2 text-sm font-medium rounded-lg transition duration-200 focus:outline-none"
+                            aria-pressed="true">按品牌筛选</button>
+                    <button id="filterByCategoryBtn" class="flex-1 px-4 py-2 text-sm font-medium rounded-lg transition duration-200 focus:outline-none"
+                            aria-pressed="false">按品类筛选</button>
+                </div>
+                <div id="filterOptions" class="space-y-2">
+                    <!-- 品牌或品类列表将在这里动态加载 -->
+                </div>
+            </aside>
+
+            <!-- 中间：产品详情或列表（占3/5） -->
+            <main class="col-span-1 lg:col-span-3 p-6 bg-white rounded-xl shadow-md">
+                <!-- 列表顶部工具栏：包含子筛选和排序 -->
+                <div id="listToolbar" class="mb-4 hidden items-center justify-between gap-4">
+                    <div id="subFilterContainer" class="flex flex-wrap gap-2">
+                        <!-- 子筛选按钮将在这里动态加载 -->
+                    </div>
+                    <div class="flex-shrink-0">
+                        <select id="sortDropdown" class="p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="sales_desc">销量从高到低</option>
+                            <option value="price_asc">价格从低到高</option>
+                            <option value="price_desc">价格从高到低</option>
+                            <option value="releaseDate_desc">发布时间从新到旧</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="mainContent" class="flex flex-col gap-6">
+                    <!-- 产品列表或详情内容将在这里动态加载 -->
+                </div>
+
+                <!-- 消息提示区域 -->
+                <div id="messageBox" class="hidden mt-8 p-4 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-lg shadow-md text-center" role="alert">
+                    <p id="messageText" class="font-medium">正在加载产品信息...</p>
+                </div>
+                
+                <!-- 分页控件 -->
+                <div id="paginationContainer" class="flex justify-center mt-6 hidden">
+                    <!-- 分页按钮将在这里动态生成 -->
+                </div>
+            </main>
+
+            <!-- 右侧：价格比较（占1/5） -->
+            <aside id="priceComparisonSection" class="col-span-1 p-6 bg-white rounded-xl shadow-md h-fit hidden">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">多平台价格比较</h2>
+                    <div id="purchaseLinks" class="space-y-3">
+                        <!-- 价格链接将在这里动态加载 -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script>
+        // 模拟产品数据，增加了更多产品以支持分页
+        const mockProducts = {
+            'macbook pro m3': {
+                brand: 'Apple', category: '笔记本电脑', name: 'Apple MacBook Pro (M3)',
+                description: '搭载强大 M3 芯片的 MacBook Pro，性能卓越，电池续航持久。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=MBP+M3', price: 12999, sales: 500, releaseDate: '2023-10-30',
+                parameters: [{key: 'CPU', value: 'Apple M3 芯片'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图1'],
+                links: [{ platform: '京东', price: '¥ 12999.00', url: '#' }]
+            },
+            'iphone 15 pro': {
+                brand: 'Apple', category: '手机', name: 'Apple iPhone 15 Pro',
+                description: '钛金属机身，A17 Pro 芯片，灵动岛，强大影像系统。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=iPhone+15', price: 7999, sales: 1500, releaseDate: '2023-09-22',
+                parameters: [{key: 'CPU', value: 'A17 Pro 芯片'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图A'],
+                links: [{ platform: '京东', price: '¥ 7999.00', url: '#' }]
+            },
+            '小米手机14 ultra': {
+                brand: 'Xiaomi', category: '手机', name: '小米 14 Ultra',
+                description: '徕卡光学全焦段四摄，小米澎湃 OS，旗舰影像与性能体验。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=小米14U', price: 6499, sales: 1200, releaseDate: '2024-02-22',
+                parameters: [{key: '处理器', value: '第三代骁龙8'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图X'],
+                links: [{ platform: '小米商城', price: '¥ 6499.00', url: '#' }]
+            },
+            '华为matebook x pro': {
+                brand: 'Huawei', category: '笔记本电脑', name: '华为 MateBook X Pro',
+                description: '轻薄旗舰笔记本，超清全面屏，智慧互联，高效办公。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=MateBook+X', price: 9999, sales: 800, releaseDate: '2024-04-11',
+                parameters: [{key: '处理器', value: 'Intel® Core™ Ultra 9'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图-1'],
+                links: [{ platform: '华为商城', price: '¥ 9999.00', url: '#' }]
+            },
+            '小米14': {
+                brand: 'Xiaomi', category: '手机', name: '小米 14',
+                description: '徕卡光学镜头，骁龙8 Gen3 处理器，澎湃 OS。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=小米14', price: 4999, sales: 1100, releaseDate: '2023-10-26',
+                parameters: [{ key: '处理器', value: '骁龙8 Gen3'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图A'],
+                links: [{ platform: '小米商城', price: '¥ 4999.00', url: '#' }]
+            },
+            '华为mate60 pro': {
+                brand: 'Huawei', category: '手机', name: '华为 Mate 60 Pro',
+                description: '卫星通话，玄武架构，超可靠昆仑玻璃，突破性通信技术。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=Mate+60+P', price: 6999, sales: 1800, releaseDate: '2023-08-29',
+                parameters: [{ key: '处理器', value: '麒麟 9000s'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图B'],
+                links: [{ platform: '华为商城', price: '¥ 6999.00', url: '#' }]
+            },
+            '戴尔xps 13': {
+                brand: 'Dell', category: '笔记本电脑', name: '戴尔 XPS 13 Plus',
+                description: '极简设计，超薄机身，无缝玻璃触控板，性能与美学完美结合。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=XPS+13', price: 10999, sales: 450, releaseDate: '2023-05-15',
+                parameters: [{ key: '处理器', value: 'Intel® Core™ i7'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图C'],
+                links: [{ platform: '京东', price: '¥ 10999.00', url: '#' }]
+            },
+            '联想thinkpad x1 carbon': {
+                brand: 'Lenovo', category: '笔记本电脑', name: '联想 ThinkPad X1 Carbon Gen 11',
+                description: '轻薄商务旗舰，高强度碳纤维机身，稳定可靠，经典小红点。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=X1+Carbon', price: 11599, sales: 600, releaseDate: '2023-07-01',
+                parameters: [{ key: '处理器', value: 'Intel® Core™ i7'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图D'],
+                links: [{ platform: '联想官网', price: '¥ 11599.00', url: '#' }]
+            },
+            '苹果ipad pro m4': {
+                brand: 'Apple', category: '平板电脑', name: 'Apple iPad Pro (M4)',
+                description: '搭载 M4 芯片的全新 iPad Pro，极致轻薄，双层串联 OLED 显示屏。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=iPad+M4', price: 8999, sales: 950, releaseDate: '2024-05-07',
+                parameters: [{ key: 'CPU', value: 'Apple M4 芯片'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图E'],
+                links: [{ platform: '京东', price: '¥ 8999.00', url: '#' }]
+            },
+            '华为matepad pro 13.2': {
+                brand: 'Huawei', category: '平板电脑', name: '华为 MatePad Pro 13.2英寸',
+                description: '全球首款柔性OLED平板，星闪连接，超窄边框，极致轻薄。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=MatePad+P', price: 5499, sales: 700, releaseDate: '2023-09-25',
+                parameters: [{ key: '处理器', value: '麒麟 9000s'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图F'],
+                links: [{ platform: '华为商城', price: '¥ 5499.00', url: '#' }]
+            },
+            '索尼wh-1000xm5': {
+                brand: 'Sony', category: '耳机', name: '索尼 WH-1000XM5',
+                description: '行业领先的降噪技术，超舒适佩戴，卓越音质，全新设计。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=WH-1000XM5', price: 2499, sales: 650, releaseDate: '2022-05-12',
+                parameters: [{ key: '降噪', value: '集成处理器 V1'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图G'],
+                links: [{ platform: '京东', price: '¥ 2499.00', url: '#' }]
+            },
+            'airpods max': {
+                brand: 'Apple', category: '耳机', name: 'Apple AirPods Max',
+                description: '高保真音质，自适应均衡，主动降噪，空间音频，华丽设计。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=AirPods+Max', price: 4399, sales: 850, releaseDate: '2020-12-15',
+                parameters: [{ key: '芯片', value: 'H1 芯片'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图H'],
+                links: [{ platform: 'Apple官网', price: '¥ 4399.00', url: '#' }]
+            },
+            '华为freebuds pro 3': {
+                brand: 'Huawei', category: '耳机', name: '华为 FreeBuds Pro 3',
+                description: '超感知原声双单元，星闪连接，主动降噪，全能听音旗舰。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=FreeBuds+P', price: 1499, sales: 750, releaseDate: '2023-09-14',
+                parameters: [{ key: '降噪', value: '智慧动态降噪 3.0'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图I'],
+                links: [{ platform: '华为商城', price: '¥ 1499.00', url: '#' }]
+            },
+            '小米平板6s pro': {
+                brand: 'Xiaomi', category: '平板电脑', name: '小米平板 6S Pro 12.4',
+                description: '144Hz 7档可变刷新率，骁龙8 Gen2，超大电池，全能生产力工具。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=小米平板6S', price: 3499, sales: 600, releaseDate: '2024-02-22',
+                parameters: [{ key: '处理器', value: '第二代骁龙8'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图J'],
+                links: [{ platform: '小米商城', price: '¥ 3499.00', url: '#' }]
+            },
+            '联想拯救者y9000p': {
+                brand: 'Lenovo', category: '笔记本电脑', name: '联想 拯救者 Y9000P 2024',
+                description: '电竞级性能，全新处理器，强劲散热系统，极致游戏体验。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=Y9000P', price: 10999, sales: 900, releaseDate: '2024-01-16',
+                parameters: [{ key: '处理器', value: 'Intel® Core™ i9'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图K'],
+                links: [{ platform: '联想官网', price: '¥ 10999.00', url: '#' }]
+            },
+            'iphone 15': {
+                brand: 'Apple', category: '手机', name: 'Apple iPhone 15',
+                description: '灵动岛，A16 仿生芯片，USB-C 端口，全新超瓷晶面板。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=iPhone+15', price: 5999, sales: 2000, releaseDate: '2023-09-22',
+                parameters: [{ key: '芯片', value: 'A16 仿生'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图L'],
+                links: [{ platform: '京东', price: '¥ 5999.00', url: '#' }]
+            },
+            'macbook air m2': {
+                brand: 'Apple', category: '笔记本电脑', name: 'Apple MacBook Air (M2)',
+                description: '轻薄设计，M2 芯片，液态视网膜显示屏，全天候电池续航。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=MBA+M2', price: 7999, sales: 1300, releaseDate: '2022-07-15',
+                parameters: [{ key: '芯片', value: 'Apple M2'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图M'],
+                links: [{ platform: '京东', price: '¥ 7999.00', url: '#' }]
+            },
+            '三星galaxy s24 ultra': {
+                brand: 'Samsung', category: '手机', name: '三星 Galaxy S24 Ultra',
+                description: '集成 Galaxy AI，超视觉影像，钛金属边框，带来全新智能体验。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=S24+Ultra', price: 9999, sales: 1000, releaseDate: '2024-01-17',
+                parameters: [{ key: '处理器', value: '第三代骁龙8 for Galaxy'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图N'],
+                links: [{ platform: '三星官网', price: '¥ 9999.00', url: '#' }]
+            },
+            '华为matebook 14': {
+                brand: 'Huawei', category: '笔记本电脑', name: '华为 MateBook 14',
+                description: '2.5K 触控全面屏，强大性能，轻薄机身，智慧互联。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=MateBook+14', price: 6299, sales: 700, releaseDate: '2024-04-11',
+                parameters: [{ key: '处理器', value: 'Intel® Core™ Ultra 7'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图O'],
+                links: [{ platform: '华为商城', price: '¥ 6299.00', url: '#' }]
+            },
+            '小米手表s3': {
+                brand: 'Xiaomi', category: '智能穿戴', name: '小米手表 S3',
+                description: '可拆卸表圈，澎湃 OS，轻量化设计，超长续航。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=小米手表S3', price: 799, sales: 900, releaseDate: '2023-10-26',
+                parameters: [{ key: '系统', value: '小米澎湃 OS'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图P'],
+                links: [{ platform: '小米商城', price: '¥ 799.00', url: '#' }]
+            },
+            'oppo find x7 ultra': {
+                brand: 'OPPO', category: '手机', name: 'OPPO Find X7 Ultra',
+                description: '哈苏全焦段大师影像，双潜望四主摄，国密安全芯片。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=Find+X7+U', price: 5999, sales: 800, releaseDate: '2024-01-08',
+                parameters: [{ key: '处理器', value: '第三代骁龙8'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图Q'],
+                links: [{ platform: 'OPPO官网', price: '¥ 5999.00', url: '#' }]
+            },
+            'vivo x100 pro': {
+                brand: 'Vivo', category: '手机', name: 'vivo X100 Pro',
+                description: '蔡司 APO 浮动长焦，自研影像芯片 V3，天玑 9300 旗舰芯。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=X100+Pro', price: 4999, sales: 1100, releaseDate: '2023-11-13',
+                parameters: [{ key: '处理器', value: '天玑 9300'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图R'],
+                links: [{ platform: 'vivo官网', price: '¥ 4999.00', url: '#' }]
+            },
+            '大疆mavic 3 pro': {
+                brand: 'DJI', category: '无人机', name: '大疆 DJI Mavic 3 Pro',
+                description: '三摄影像系统，超长续航，全向避障，专业级航拍旗舰。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=Mavic+3+P', price: 13888, sales: 300, releaseDate: '2023-04-25',
+                parameters: [{ key: '摄像头', value: '哈苏相机'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图S'],
+                links: [{ platform: '大疆官方商城', price: '¥ 13888.00', url: '#' }]
+            },
+            '大疆osmo action 4': {
+                brand: 'DJI', category: '运动相机', name: '大疆 DJI Osmo Action 4',
+                description: '1/1.3 英寸大底，超强防抖，超长续航，磁吸快拆，水下拍摄。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=Action+4', price: 2199, sales: 550, releaseDate: '2023-07-25',
+                parameters: [{ key: '传感器', value: '1/1.3 英寸 CMOS'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图T'],
+                links: [{ platform: '京东', price: '¥ 2199.00', url: '#' }]
+            },
+            // 更多数据以支持多页显示
+            '小米手环8 pro': {
+                brand: 'Xiaomi', category: '智能穿戴', name: '小米手环 8 Pro',
+                description: '大尺寸AMOLED方屏，GPS独立定位，心率血氧监测，多彩表带。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=手环8Pro', price: 399, sales: 1500, releaseDate: '2023-08-14',
+                parameters: [{key: '屏幕', value: '1.74英寸AMOLED'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图U'],
+                links: [{ platform: '小米商城', price: '¥ 399.00', url: '#' }]
+            },
+            '华为watch gt 4': {
+                brand: 'Huawei', category: '智能穿戴', name: '华为 WATCH GT 4',
+                description: '时尚腕表，科学运动，智慧健康，超长续航。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=GT4', price: 1588, sales: 1000, releaseDate: '2023-09-14',
+                parameters: [{key: '功能', value: '心率、血氧、睡眠监测'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图V'],
+                links: [{ platform: '华为商城', price: '¥ 1588.00', url: '#' }]
+            },
+            '大疆mini 4 pro': {
+                brand: 'DJI', category: '无人机', name: '大疆 DJI Mini 4 Pro',
+                description: '249克轻巧机身，全向避障，4K HDR，高清图传，畅飞套装。',
+                image: 'https://placehold.co/400x300/E0E7FF/4F46E5?text=Mini+4P', price: 6099, sales: 400, releaseDate: '2023-09-25',
+                parameters: [{key: '重量', value: '< 249g'}], promotional_images: ['https://placehold.co/800x600/60A5FA/FFFFFF?text=宣传图W'],
+                links: [{ platform: '大疆官方商城', price: '¥ 6099.00', url: '#' }]
+            }
+        };
+        
+        const searchInput = document.getElementById('productSearchInput');
+        const searchButton = document.getElementById('searchButton');
+        const mainContentContainer = document.getElementById('mainContent');
+        const priceComparisonSection = document.getElementById('priceComparisonSection');
+        const priceLinksContainer = document.getElementById('purchaseLinks');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const filterOptionsContainer = document.getElementById('filterOptions');
+        const filterByBrandBtn = document.getElementById('filterByBrandBtn');
+        const filterByCategoryBtn = document.getElementById('filterByCategoryBtn');
+        const listToolbar = document.getElementById('listToolbar');
+        const subFilterContainer = document.getElementById('subFilterContainer');
+        const sortDropdown = document.getElementById('sortDropdown');
+        const paginationContainer = document.getElementById('paginationContainer');
+
+        const allProducts = Object.values(mockProducts);
+        const allBrands = [...new Set(allProducts.map(p => p.brand))];
+        const allCategories = [...new Set(allProducts.map(p => p.category))];
+
+        let currentFilterMode = 'brand'; 
+        let currentFilterItem = null; 
+        let currentSubFilterItem = null;
+        let currentSort = 'sales_desc';
+        
+        let currentPage = 1;
+        const itemsPerPage = 12;
+
+        // 更新筛选按钮的样式
+        function updateFilterButtonStyles() {
+            filterByBrandBtn.classList.remove('bg-blue-600', 'text-white');
+            filterByCategoryBtn.classList.remove('bg-blue-600', 'text-white');
+            filterByBrandBtn.classList.add('bg-slate-200', 'text-slate-800', 'hover:bg-slate-300');
+            filterByCategoryBtn.classList.add('bg-slate-200', 'text-slate-800', 'hover:bg-slate-300');
+
+            if (currentFilterMode === 'brand') {
+                filterByBrandBtn.classList.remove('bg-slate-200', 'text-slate-800');
+                filterByBrandBtn.classList.add('bg-blue-600', 'text-white');
+                filterByBrandBtn.setAttribute('aria-pressed', 'true');
+                filterByCategoryBtn.setAttribute('aria-pressed', 'false');
+            } else {
+                filterByCategoryBtn.classList.remove('bg-slate-200', 'text-slate-800');
+                filterByCategoryBtn.classList.add('bg-blue-600', 'text-white');
+                filterByCategoryBtn.setAttribute('aria-pressed', 'true');
+                filterByBrandBtn.setAttribute('aria-pressed', 'false');
+            }
+        }
+
+        // 事件监听器
+        filterByBrandBtn.addEventListener('click', () => {
+            currentFilterMode = 'brand';
+            currentFilterItem = null;
+            currentSubFilterItem = null;
+            currentPage = 1;
+            renderFilters();
+            renderMainContent(allProducts, '所有产品');
+        });
+
+        filterByCategoryBtn.addEventListener('click', () => {
+            currentFilterMode = 'category';
+            currentFilterItem = null;
+            currentSubFilterItem = null;
+            currentPage = 1;
+            renderFilters();
+            renderMainContent(allProducts, '所有产品');
+        });
+
+        sortDropdown.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            currentPage = 1;
+            renderMainContent(getFilteredProducts(), getTitle());
+        });
+
+        // 显示或隐藏价格比较栏
+        function togglePriceComparisonSection(show) {
+            if (show) {
+                priceComparisonSection.classList.remove('hidden');
+            } else {
+                priceComparisonSection.classList.add('hidden');
+                priceLinksContainer.innerHTML = '';
+            }
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'info') {
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'bg-yellow-100');
+            messageBox.classList.remove('border-red-300', 'border-green-300', 'border-yellow-300');
+            messageBox.classList.remove('text-red-800', 'text-green-800', 'text-yellow-800');
+
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'border-red-300', 'text-red-800');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'border-green-300', 'text-green-800');
+            } else { // info
+                messageBox.classList.add('bg-yellow-100', 'border-yellow-300', 'text-yellow-800');
+            }
+            mainContentContainer.innerHTML = '';
+            togglePriceComparisonSection(false); // 列表页隐藏价格比较
+            listToolbar.classList.add('hidden');
+            paginationContainer.classList.add('hidden');
+        }
+
+        // 隐藏消息
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+        }
+        
+        // 获取中间栏标题
+        function getTitle() {
+            if (!currentFilterItem) {
+                return '所有产品';
+            }
+            if (currentSubFilterItem) {
+                return `${currentFilterItem} - ${currentSubFilterItem} 产品列表`;
+            }
+            return `${currentFilterItem} 产品列表`;
+        }
+
+        // 根据当前的筛选和排序状态获取所有符合条件的产品列表
+        function getFilteredProducts() {
+            let filteredProducts = allProducts;
+            if (currentFilterItem) {
+                if (currentFilterMode === 'brand') {
+                    filteredProducts = filteredProducts.filter(p => p.brand === currentFilterItem);
+                } else {
+                    filteredProducts = filteredProducts.filter(p => p.category === currentFilterItem);
+                }
+            }
+            if (currentSubFilterItem) {
+                if (currentFilterMode === 'brand') {
+                    filteredProducts = filteredProducts.filter(p => p.category === currentSubFilterItem);
+                } else {
+                    filteredProducts = filteredProducts.filter(p => p.brand === currentSubFilterItem);
+                }
+            }
+            
+            // 排序逻辑
+            filteredProducts.sort((a, b) => {
+                switch (currentSort) {
+                    case 'price_asc':
+                        return a.price - b.price;
+                    case 'price_desc':
+                        return b.price - a.price;
+                    case 'releaseDate_desc':
+                        return new Date(b.releaseDate) - new Date(a.releaseDate);
+                    case 'sales_desc':
+                    default:
+                        return b.sales - a.sales;
+                }
+            });
+
+            return filteredProducts;
+        }
+
+        // 渲染中间栏内容
+        function renderMainContent(products, title) {
+            hideMessage();
+            togglePriceComparisonSection(false); // 列表页隐藏价格比较
+            listToolbar.classList.remove('hidden', 'flex');
+            paginationContainer.classList.remove('hidden');
+            mainContentContainer.innerHTML = '';
+            
+            if (products.length === 0) {
+                showMessage('没有找到相关产品。', 'error');
+                return;
+            }
+
+            // 渲染子筛选和排序工具栏
+            listToolbar.classList.add('flex');
+            renderSubFilters();
+
+            // 计算分页
+            const totalPages = Math.ceil(products.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const productsOnPage = products.slice(startIndex, endIndex);
+
+            mainContentContainer.innerHTML = `
+                <h3 class="text-2xl font-bold text-slate-800 mb-4">${title}</h3>
+                <!-- 每行显示4个元素的布局 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    ${productsOnPage.map(product => `
+                        <div class="product-card cursor-pointer p-3 bg-slate-50 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between" data-product-key="${Object.keys(mockProducts).find(key => mockProducts[key] === product)}">
+                            <img src="${product.image}" alt="${product.name}" class="w-full h-32 object-contain rounded-lg mb-2">
+                            <div class="flex-grow">
+                                <h3 class="text-lg font-bold text-slate-800 line-clamp-1">${product.name}</h3>
+                                <p class="text-slate-600 text-sm mt-1 line-clamp-2">${product.description}</p>
+                            </div>
+                            <p class="text-green-600 font-bold text-lg mt-2">¥ ${product.price}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            // 渲染分页控件
+            renderPagination(totalPages);
+
+            // 为每个产品卡片添加点击事件
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const productKey = e.currentTarget.dataset.productKey;
+                    const product = mockProducts[productKey];
+                    if (product) {
+                        renderSingleProductDetail(product);
+                    }
+                });
+            });
+        }
+        
+        // 渲染分页控件
+        function renderPagination(totalPages) {
+            paginationContainer.innerHTML = '';
+            if (totalPages <= 1) {
+                paginationContainer.classList.add('hidden');
+                return;
+            }
+            paginationContainer.classList.remove('hidden');
+            
+            // 上一页按钮
+            const prevButton = document.createElement('button');
+            prevButton.textContent = '上一页';
+            prevButton.className = 'pagination-button px-4 py-2 mx-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderMainContent(getFilteredProducts(), getTitle());
+                }
+            });
+            paginationContainer.appendChild(prevButton);
+
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.className = `pagination-button px-4 py-2 mx-1 rounded-lg transition ${currentPage === i ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-800 hover:bg-slate-300'}`;
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    renderMainContent(getFilteredProducts(), getTitle());
+                });
+                paginationContainer.appendChild(pageButton);
+            }
+
+            // 下一页按钮
+            const nextButton = document.createElement('button');
+            nextButton.textContent = '下一页';
+            nextButton.className = 'pagination-button px-4 py-2 mx-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderMainContent(getFilteredProducts(), getTitle());
+                }
+            });
+            paginationContainer.appendChild(nextButton);
+        }
+
+        // 渲染子筛选器
+        function renderSubFilters() {
+            subFilterContainer.innerHTML = '';
+            let subFilters = [];
+            let filterTitle = '';
+            if (currentFilterMode === 'brand' && currentFilterItem) {
+                subFilters = [...new Set(allProducts.filter(p => p.brand === currentFilterItem).map(p => p.category))];
+                filterTitle = '品类：';
+            } else if (currentFilterMode === 'category' && currentFilterItem) {
+                subFilters = [...new Set(allProducts.filter(p => p.category === currentFilterItem).map(p => p.brand))];
+                filterTitle = '品牌：';
+            } else {
+                return;
+            }
+
+            subFilterContainer.innerHTML = `
+                <span class="text-slate-600 font-medium">${filterTitle}</span>
+                ${subFilters.map(item => `
+                    <button class="sub-filter-option px-4 py-1 text-sm font-medium rounded-lg transition duration-200 focus:outline-none 
+                        ${currentSubFilterItem === item ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-800 hover:bg-slate-300'}"
+                        data-item="${item}">${item}</button>
+                `).join('')}
+            `;
+
+            document.querySelectorAll('.sub-filter-option').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    currentSubFilterItem = e.target.dataset.item;
+                    currentPage = 1;
+                    renderMainContent(getFilteredProducts(), getTitle());
+                });
+            });
+        }
+        
+        // 渲染单个产品详情，包括返回按钮
+        function renderSingleProductDetail(product) {
+            hideMessage();
+            listToolbar.classList.add('hidden');
+            paginationContainer.classList.add('hidden');
+            mainContentContainer.innerHTML = `
+                <!-- 返回按钮 -->
+                <button id="backToListBtn" class="flex items-center text-blue-600 font-medium mb-4 hover:text-blue-800 transition duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    返回列表
+                </button>
+                <!-- 缩略图和标题/简介部分，左右布局 -->
+                <div class="flex flex-col sm:flex-row gap-6 mb-4">
+                    <!-- 产品图片 -->
+                    <div class="flex-shrink-0 w-full sm:w-1/3 rounded-lg overflow-hidden border border-slate-300 shadow-sm">
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-auto object-cover">
+                    </div>
+
+                    <!-- 标题和简介 -->
+                    <div class="flex-grow">
+                        <h2 class="text-3xl font-bold text-slate-800 mb-2">${product.name}</h2>
+                        <p class="text-slate-600 leading-relaxed text-base">${product.description}</p>
+                    </div>
+                </div>
+
+                <!-- 关键参数 -->
+                <div class="border-t border-slate-200 pt-4">
+                    <h3 class="text-xl font-semibold text-slate-700 mb-3">关键参数</h3>
+                    <ul class="space-y-2">
+                        ${product.parameters.map(param => `
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 text-slate-500 font-medium w-20">${param.key}：</span>
+                                <span class="flex-grow text-slate-700">${param.value}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+
+                <!-- 宣传图 -->
+                <div class="border-t border-slate-200 pt-4">
+                    <h3 class="text-xl font-semibold text-slate-700 mb-3">官方宣传图</h3>
+                    <div class="horizontal-scroll-container flex overflow-x-auto gap-4 p-2 -m-2">
+                        ${product.promotional_images.map(img => `
+                            <img src="${img}" alt="宣传图" class="flex-shrink-0 w-80 h-60 rounded-lg object-cover shadow-sm">
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            // 为返回按钮添加事件
+            document.getElementById('backToListBtn').addEventListener('click', () => {
+                // 如果是从搜索结果返回，则回到搜索列表
+                if (currentSearchQuery) {
+                    handleSearch(currentSearchQuery);
+                } else {
+                    renderMainContent(getFilteredProducts(), getTitle());
+                }
+            });
+            renderPriceComparison(product);
+        }
+        
+        // 渲染价格比较
+        function renderPriceComparison(product) {
+            priceLinksContainer.innerHTML = product.links.map(link => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-md shadow-sm border border-slate-200 hover:shadow-md transition duration-200">
+                    <span class="text-slate-700 font-medium">${link.platform}</span>
+                    <span class="text-green-600 font-bold text-lg">${link.price}</span>
+                    <a href="${link.url}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium transition duration-200 flex items-center">
+                        去购买
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+            `).join('');
+            togglePriceComparisonSection(true);
+        }
+
+        // 渲染左侧筛选器
+        function renderFilters() {
+            updateFilterButtonStyles();
+            filterOptionsContainer.innerHTML = '';
+            let filters = [];
+            if (currentFilterMode === 'brand') {
+                filters = allBrands;
+            } else {
+                filters = allCategories;
+            }
+
+            filterOptionsContainer.innerHTML = filters.map(item => `
+                <button class="filter-option w-full text-left px-4 py-2 text-lg rounded-lg transition duration-200 ease-in-out focus:outline-none 
+                    ${currentFilterItem === item ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}"
+                    data-item="${item}">${item}</button>
+            `).join('');
+
+            document.querySelectorAll('.filter-option').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const item = e.target.dataset.item;
+                    currentFilterItem = item;
+                    currentSubFilterItem = null; // 重置子筛选
+                    currentSearchQuery = ''; // 筛选时清空搜索状态
+                    currentPage = 1; // 筛选变化时重置页码
+                    renderFilters(); // 更新左侧选中状态
+                    renderMainContent(getFilteredProducts(), getTitle());
+                });
+            });
+        }
+
+        let currentSearchQuery = ''; // 新增变量来存储当前搜索关键词
+        
+        function handleSearch(query = null) {
+            const searchQuery = query || searchInput.value.trim().toLowerCase();
+            currentSearchQuery = searchQuery;
+            
+            // 重置筛选器状态，以确保搜索结果不受影响
+            currentFilterItem = null;
+            currentSubFilterItem = null;
+            currentPage = 1;
+            renderFilters();
+            
+            if (!searchQuery) {
+                showMessage('请输入商品名称进行搜索！', 'error');
+                return;
+            }
+            showMessage(`正在搜索与“${searchQuery}”相关的产品...`, 'info');
+
+            setTimeout(() => {
+                const searchResults = allProducts.filter(product => 
+                    Object.keys(product).some(key => 
+                        typeof product[key] === 'string' && product[key].toLowerCase().includes(searchQuery)
+                    )
+                );
+                if (searchResults.length > 0) {
+                    renderMainContent(searchResults, `搜索结果: "${searchQuery}"`);
+                } else {
+                    showMessage('抱歉，未找到相关产品。请尝试其他关键词。', 'error');
+                }
+            }, 800);
+        }
+
+        searchButton.addEventListener('click', () => handleSearch());
+
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        window.onload = () => {
+            renderFilters();
+            renderMainContent(allProducts, '所有产品');
+        };
+    </script>
+</body>
+</html>
