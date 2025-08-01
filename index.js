@@ -199,15 +199,38 @@ document.querySelectorAll('.product-card').forEach(card => {
 // 全局样式切换功能
 const toggleGlobalStyleSwitch = document.getElementById('toggleGlobalStyle');
 
+// 动态加载TUI样式文件
+function loadTUIStyle() {
+    const link = document.getElementById('tui-style');
+    if (link) {
+        link.disabled = false;
+    }
+}
+
+// 动态移除TUI样式文件
+function unloadTUIStyle() {
+    const link = document.getElementById('tui-style');
+    if (link) {
+        link.disabled = true;
+    }
+}
+
 if (toggleGlobalStyleSwitch) {
     // 检查页面加载时是否应该应用TUI样式
     if (document.body.classList.contains('tui-style')) {
         toggleGlobalStyleSwitch.checked = true;
+        loadTUIStyle();
     }
     
     toggleGlobalStyleSwitch.addEventListener('change', () => {
         // 切换全局样式
-        document.body.classList.toggle('tui-style');
+        if (toggleGlobalStyleSwitch.checked) {
+            document.body.classList.add('tui-style');
+            loadTUIStyle();
+        } else {
+            document.body.classList.remove('tui-style');
+            unloadTUIStyle();
+        }
     });
 }
 }
