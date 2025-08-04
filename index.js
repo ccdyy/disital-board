@@ -280,6 +280,13 @@ function renderSingleProductDetail(product) {
     hideMessage();
     listToolbar.classList.add('hidden');
     paginationContainer.classList.add('hidden');
+
+    // 手机端隐藏搜索和筛选区域
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        document.querySelector('header').style.display = 'none';
+        document.querySelector('.left-panel').style.display = 'none';
+    }
     
     // 合并主图和宣传图
     const allImages = [product.image, ...product.promotional_images];
@@ -338,6 +345,11 @@ function renderSingleProductDetail(product) {
     const backToListBtn = document.getElementById('backToListBtn');
     if (backToListBtn) {
         backToListBtn.addEventListener('click', () => {
+            // 恢复手机端搜索和筛选区域
+            if (isMobile) {
+                document.querySelector('header').style.display = '';
+                document.querySelector('.left-panel').style.display = '';
+            }
             // 返回上一级列表
             renderMainContent(getFilteredProducts(), getTitle());
         });

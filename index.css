@@ -247,6 +247,8 @@
     
     .product-detail-container {
         flex-direction: column;
+        max-height: 100vh;
+        padding: 0.5em;
     }
     
     .product-detail-images,
@@ -293,6 +295,12 @@
     .pagination-container button {
         margin: 0.25em;
         padding: 0.5em 0.75em;
+        font-size: 0.9em;
+    }
+    
+    .back-button {
+        margin-bottom: 0.5em;
+        padding: 0.4em 0.8em;
         font-size: 0.9em;
     }
 }
