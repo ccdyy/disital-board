@@ -507,29 +507,32 @@ function renderSingleProductDetail(product) {
 function renderFilters() {
     if (!filterOptionsContainer) return;
     updateFilterButtonStyles();
-    filterOptionsContainer.innerHTML = '';
-    let filters = [];
-    if (currentFilterMode === 'brand') {
-        filters = allBrands;
-    } else {
-        filters = allCategories;
+    
+    const items = currentFilterMode === 'brand' ? allBrands : allCategories;
+    const isMobile = window.innerWidth <= 768;
+    
+    filterOptionsContainer.innerHTML = isMobile
+        ? `<select class="mobile-filter-select">
+               <option value="">选择${currentFilterMode === 'brand' ? '品牌' : '品类'}</option>
+               ${items.map(i => `<option value="${i}" ${i === currentFilterItem ? 'selected' : ''}>${i}</option>`).join('')}
+           </select>`
+        : items.map(i => `<button class="filter-option ${i === currentFilterItem ? 'active' : ''}" data-item="${i}">${i}</button>`).join('');
+
+    const select = filterOptionsContainer.querySelector('.mobile-filter-select');
+    if (select) select.addEventListener('change', e => handleFilterSelect(e.target.value));
+
+    const buttons = filterOptionsContainer.querySelectorAll('.filter-option');
+    buttons.forEach(btn => btn.addEventListener('click', e => handleFilterSelect(e.target.dataset.item)));
+
+    function handleFilterSelect(item) {
+        if (!item) return;
+        currentFilterItem = item;
+        currentSubFilterItem = null;
+        currentSearchQuery = '';
+        currentPage = 1;
+        renderFilters();
+        renderMainContent(getFilteredProducts(), getTitle());
     }
-
-    filterOptionsContainer.innerHTML = filters.map(item => `
-        <button class="filter-option ${currentFilterItem === item ? 'active' : ''}" data-item="${item}">${item}</button>
-    `).join('');
-
-    document.querySelectorAll('.filter-option').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const item = e.target.dataset.item;
-            currentFilterItem = item;
-            currentSubFilterItem = null;
-            currentSearchQuery = '';
-            currentPage = 1;
-            renderFilters();
-            renderMainContent(getFilteredProducts(), getTitle());
-        });
-    });
 }
 
 // 处理搜索功能
@@ -570,7 +573,10 @@ searchInput.addEventListener('keypress', (event) => {
 });
 
 // 页面加载时初始化
-window.onload = () => {
+window.addEventListener('load', () => {
     renderFilters();
     renderMainContent(allProducts, '所有产品');
-};
+});
+
+// 监听窗口大小变化，重新渲染筛选器
+window.addEventListener('resize', () => renderFilters());
